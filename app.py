@@ -25,6 +25,7 @@ def ler_livros():
 
 
 # Função de consultar livros específicos
+
 @app.route('/livros/<int:idconsulta>', methods=['GET'])
 def ler_livro_id(idconsulta):
     db_connection = conectardb()
@@ -42,6 +43,7 @@ def ler_livro_id(idconsulta):
     return jsonify(livroid_json)
 
 # Função de editar livros
+
 @app.route('/livros/<int:idedit>', methods=['PUT'])
 def editar_livro_id(idedit):
     livro_json = request.get_json()
@@ -49,7 +51,7 @@ def editar_livro_id(idedit):
     db_connection = conectardb()
 
     cursor = db_connection.cursor()
-    atualizasql = " UPDATE livros SET nome = '{}' WHERE id = {};" .format(livro_json['nome'], idedit)
+    atualizasql = "UPDATE livros SET nome = '{}' WHERE id = {};" .format(livro_json['nome'], idedit)
     cursor.execute(atualizasql)
     db_connection.commit()
     consultasql = "SELECT * FROM livros WHERE ID = '{}'" .format(idedit)
@@ -63,7 +65,33 @@ def editar_livro_id(idedit):
 
     return jsonify(livroid_json)
 
+# Função de incluir novos livros
+@app.route('/livros', methods=['POST'])
+def adicionar_livro():
+    novolivro_json = request.get_json()
+
+    db_connection = conectardb()
+
+    cursor = db_connection.cursor()
+
+    insertsql = "INSERT INTO `livros`(`nome`) VALUES ('{}')" .format(novolivro_json['nome']) 
+    cursor.execute(insertsql)
+    db_connection.commit()
+
+    consultasql = "SELECT * FROM livros WHERE nome = '{}'" .format(novolivro_json['nome'])
+    cursor.execute(consultasql)
+    livros = cursor.fetchall()
+    
+    livroid_json = [dict(zip(cursor.column_names, livro)) for livro in livros]
+
+    cursor.close()
+    db_connection.close()
+
+    return jsonify(livroid_json)
+
 # Função de Excluir livros
+
+
 
 # Função de Alocar livros
 
