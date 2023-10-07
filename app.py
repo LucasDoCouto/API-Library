@@ -66,6 +66,7 @@ def editar_livro_id(idedit):
     return jsonify(livroid_json)
 
 # Função de incluir novos livros
+
 @app.route('/livros', methods=['POST'])
 def adicionar_livro():
     novolivro_json = request.get_json()
@@ -90,7 +91,25 @@ def adicionar_livro():
     return jsonify(livroid_json)
 
 # Função de Excluir livros
+@app.route('/livros/<int:idremove>', methods=['DELETE'])
+def remover_livro(idremove):
+    db_connection = conectardb()
 
+    cursor = db_connection.cursor()
+
+    removesql = "DELETE FROM `livros` WHERE id = '{}'" .format(idremove)
+    cursor.execute(removesql)
+    db_connection.commit()
+
+    cursor.execute("SELECT * FROM livros")
+    livros = cursor.fetchall()
+    
+    livros_json = [dict(zip(cursor.column_names, livro)) for livro in livros]
+
+    cursor.close()
+    db_connection.close()
+
+    return jsonify(livros_json)
 
 
 # Função de Alocar livros
