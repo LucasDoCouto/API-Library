@@ -26,7 +26,21 @@ def ler_livros():
 
 
 # Função de consultar livros específicos
+@app.route('/livros/<int:idconsulta>', methods=['GET'])
+def ler_livro_id(idconsulta):
+    db_connection = conectardb()
 
+    cursor = db_connection.cursor()
+    consultasql = "SELECT * FROM livros WHERE ID = '{}'" .format(idconsulta)
+    cursor.execute(consultasql)
+    livros = cursor.fetchall()
+    
+    livroid_json = [dict(zip(cursor.column_names, livro)) for livro in livros]
+
+    cursor.close()
+    db_connection.close()
+
+    return jsonify(livroid_json)
 # Função de editar livros
 
 # Função de Excluir livros
