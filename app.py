@@ -4,11 +4,10 @@ from conectardb import conectardb
 
 app = Flask(__name__)
 
-# Lê o banco de dados
 
 # Função de consultar todos os livros do banco de dados
 
-@app.route('/livros')
+@app.route('/livros', methods=['GET'])
 def ler_livros():
     db_connection = conectardb()
 
@@ -41,10 +40,31 @@ def ler_livro_id(idconsulta):
     db_connection.close()
 
     return jsonify(livroid_json)
+
 # Função de editar livros
+@app.route('/livros/<int:idedit>', methods=['PUT'])
+def editar_livro_id(idedit):
+    livro_json = request.get_json()
+
+    db_connection = conectardb()
+
+    cursor = db_connection.cursor()
+    atualizasql = " UPDATE livros SET nome = '{}' WHERE id = {};" .format(livro_json['nome'], idedit)
+    cursor.execute(atualizasql)
+    db_connection.commit()
+    consultasql = "SELECT * FROM livros WHERE ID = '{}'" .format(idedit)
+    cursor.execute(consultasql)
+    livros = cursor.fetchall()
+    
+    livroid_json = [dict(zip(cursor.column_names, livro)) for livro in livros]
+
+    cursor.close()
+    db_connection.close()
+
+    return jsonify(livroid_json)
 
 # Função de Excluir livros
 
 # Função de Alocar livros
 
-app.run(port=5000, host='localhost', debug=True)
+app.run(port=8000, host='localhost', debug=True)
