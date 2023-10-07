@@ -1,46 +1,29 @@
 from flask import Flask, jsonify, request
 
+from conectardb import conectardb
+
 app = Flask(__name__)
 
-livros = [
-    {
-        'id': 1,
-        'titulo': 'O Senhor dos Anéis -  A Sociedade do Anel',
-        'autor': 'J. R. R, Tolkien',
-        'quantidade': 5,
-        'disponibilidade': 5
-    },
-    {
-        'id': 2,
-        'titulo': 'A Guerra dos Tronos',
-        'autor': 'George R. R. Martin',
-        'quantidade': 5,
-        'disponibilidade': 5
-    },
-    {
-        'id': 3,
-        'titulo': 'Harry Potter e a câmara secreta',
-        'autor': 'J. K. Rowling',
-        'quantidade': 5,
-        'disponibilidade': 5
-    }
-]
+# Lê o banco de dados
 
-usuarios = [
-    {
-        'id': 1,
-        'nome': 'Lucas'
-    },
-    {
-        'id': 2,
-        'nome': 'Carlos'
-    }
-]
+# Função de consultar todos os livros do banco de dados
 
-# Função de consultar livros
 @app.route('/livros')
 def ler_livros():
-    return jsonify(livros)
+    db_connection = conectardb()
+
+    cursor = db_connection.cursor()
+
+    cursor.execute("SELECT * FROM livros")
+    livros = cursor.fetchall()
+    
+    livros_json = [dict(zip(cursor.column_names, livro)) for livro in livros]
+
+    cursor.close()
+    db_connection.close()
+
+    return jsonify(livros_json)
+
 
 # Função de consultar livros específicos
 
