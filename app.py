@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 # Função de consultar todos os livros do banco de dados
 
-@app.route('/livros', methods=['GET'])
+@app.route('/livros/', methods=['GET'])
 def ler_livros():
     db_connection = conectardb()
 
@@ -31,8 +31,8 @@ def ler_livro_id(idconsulta):
     db_connection = conectardb()
 
     cursor = db_connection.cursor()
-    consultasql = "SELECT * FROM livros WHERE ID = '{}'" .format(idconsulta)
-    cursor.execute(consultasql)
+    consultasql = "SELECT * FROM livros WHERE ID = %s"
+    cursor.execute(consultasql, (idconsulta,))
     livros = cursor.fetchall()
     
     livroid_json = [dict(zip(cursor.column_names, livro)) for livro in livros]
@@ -51,11 +51,11 @@ def editar_livro_id(idedit):
     db_connection = conectardb()
 
     cursor = db_connection.cursor()
-    atualizasql = "UPDATE livros SET nome = '{}' WHERE id = {};" .format(livro_json['nome'], idedit)
-    cursor.execute(atualizasql)
+    atualizasql = "UPDATE livros SET nome = %s WHERE id = %s;"
+    cursor.execute(atualizasql, (livro_json['nome'], idedit,))
     db_connection.commit()
-    consultasql = "SELECT * FROM livros WHERE ID = '{}'" .format(idedit)
-    cursor.execute(consultasql)
+    consultasql = "SELECT * FROM livros WHERE ID = %s"
+    cursor.execute(consultasql, (idedit,))
     livros = cursor.fetchall()
     
     livroid_json = [dict(zip(cursor.column_names, livro)) for livro in livros]
@@ -67,7 +67,7 @@ def editar_livro_id(idedit):
 
 # Função de incluir novos livros
 
-@app.route('/livros', methods=['POST'])
+@app.route('/livros/', methods=['POST'])
 def adicionar_livro():
     novolivro_json = request.get_json()
 
@@ -75,12 +75,12 @@ def adicionar_livro():
 
     cursor = db_connection.cursor()
 
-    insertsql = "INSERT INTO `livros`(`nome`) VALUES ('{}')" .format(novolivro_json['nome']) 
-    cursor.execute(insertsql)
+    insertsql = "INSERT INTO `livros`(`nome`) VALUES (%s)"
+    cursor.execute(insertsql, (novolivro_json['nome'],))
     db_connection.commit()
 
-    consultasql = "SELECT * FROM livros WHERE nome = '{}'" .format(novolivro_json['nome'])
-    cursor.execute(consultasql)
+    consultasql = "SELECT * FROM livros WHERE nome = %s"
+    cursor.execute(consultasql, (novolivro_json['nome'],))
     livros = cursor.fetchall()
     
     livroid_json = [dict(zip(cursor.column_names, livro)) for livro in livros]
@@ -97,8 +97,8 @@ def remover_livro(idremove):
 
     cursor = db_connection.cursor()
 
-    removesql = "DELETE FROM `livros` WHERE id = '{}'" .format(idremove)
-    cursor.execute(removesql)
+    removesql = "DELETE FROM `livros` WHERE id = %s"
+    cursor.execute(removesql, (idremove,))
     db_connection.commit()
 
     cursor.execute("SELECT * FROM livros")
